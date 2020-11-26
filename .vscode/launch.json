@@ -18,7 +18,10 @@
                 "./src/server.ts",
             ],
             "cwd": "${workspaceRoot}",
-            "internalConsoleOptions": "openOnSessionStart"
+            "internalConsoleOptions": "openOnSessionStart",
+            "env": {
+                "TS_NODE_PROJECT": "./tsconfig.scripts.json"
+            }
         }
     ]
 }
