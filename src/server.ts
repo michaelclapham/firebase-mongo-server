@@ -142,7 +142,7 @@ function setupAPIEndpoints() {
             }
         } catch (ex) {
             res.status(500);
-            res.send({ error: "Database error" });
+            res.send({ error: "Database error", ex: ex });
             console.warn("Database error ", ex);
         }
     });
