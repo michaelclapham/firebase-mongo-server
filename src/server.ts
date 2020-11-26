@@ -99,9 +99,14 @@ function setupAPIEndpoints() {
         if (req["isOboAdmin"]) {
             const maxResults = req.query.maxResults ? Number.parseInt(req.query.maxResults as string) : undefined;
             const pageToken = req.query.pageToken ? req.query.pageToken + "" : undefined;
-            const firebaseUsers = await admin.auth().listUsers(maxResults, pageToken);
+            const firebaseListUsersResult = await admin.auth().listUsers(maxResults, pageToken);
+            const condensedUserList = firebaseListUsersResult.users.map((userRecord) => ({
+                displayName: userRecord.displayName,
+                uid: userRecord.uid,
+                email: userRecord.email
+            }));
             res.contentType("json");
-            res.send(JSON.stringify(firebaseUsers, null, 4));
+            res.send(JSON.stringify({ users: condensedUserList, pageToken: firebaseListUsersResult.pageToken }, null, 4));
         } else {
             res.status(403);
             res.send({ error: "You must be an admin to make this call"});
