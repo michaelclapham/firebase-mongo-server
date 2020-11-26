@@ -1,6 +1,7 @@
 import express from "express";
 import * as admin from "firebase-admin";
 import cors from "cors";
+import { MongoClient } from "mongodb";
 require('dotenv').config();
 
 console.log("Starting...");
@@ -19,6 +20,8 @@ try {
 } catch (ex) {
     console.error("Error authenticating with firebase admin", ex);
 }
+
+const mongoClient = new MongoClient(process.env.MONGO_URI);
 
 app.use((req, res, next) => {
     if (req.headers.authorization.startsWith("Bearer ")) {
@@ -39,11 +42,23 @@ app.use((req, res, next) => {
     }
 });
 
-app.all(process.env.PREFIX, (req, res) => {
+app.get(process.env.PREFIX, async (req, res) => {
     const userId = req["userId"];
     const userEmail = req["userEmail"];
     console.log("Request from... ", userId, userEmail);
-    res.send("Well it looks like " + userId + ":" + userEmail);
+    try {
+        await mongoClient.connect();
+        const database = mongoClient.db('test');
+        const collection = database.collection('users');
+        const users = await collection.find().toArray();
+        res.send(users);
+    } catch (ex) {
+        res.status(500);
+        res.send("Database error");
+        console.warn("Database error ", ex);
+    } finally {
+        mongoClient.close();
+    }
 });
 
 console.log("All API calls start with prefix ", process.env.PREFIX);
