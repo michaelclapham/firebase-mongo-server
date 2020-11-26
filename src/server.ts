@@ -134,11 +134,11 @@ function setupAPIEndpoints() {
             const usersCollection = database.collection('users');
             const matchingUser = await usersCollection.findOne({ firebaseUserId: effectiveUserId });
             if (matchingUser) {
-                res.status(404);
-                res.send("No user found with id " + effectiveUserId);
-            } else {
                 const data = matchingUser[req.params.property];
                 res.send(data);
+            } else {
+                res.status(404);
+                res.send({ msg: "No user found with id " + effectiveUserId});
             }
         } catch (ex) {
             res.status(500);
